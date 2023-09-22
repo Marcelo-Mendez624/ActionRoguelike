@@ -4,7 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "SCharacter.generated.h"
+
+class UCameraComponent;
+class USpringArmComponent;
+class UInputAction;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -19,6 +24,28 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Components
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	UCameraComponent* CameraComponent;
+	UPROPERTY(VisibleAnywhere, Category = "Camera")
+	USpringArmComponent* ArmComponent;
+
+	// Input
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
+	class UInputMappingContext* InputMapping;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UInputAction* InputMove;
+ 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UInputAction* InputLook;
+
+	// Handle move input
+	void Move(const FInputActionValue& Value);
+ 
+	// Handle look input
+	void Look(const FInputActionValue& Value);
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
