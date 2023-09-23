@@ -39,12 +39,20 @@ protected:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* InputLook;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UInputAction* InputAttack;
 
 	// Handle move input
 	void Move(const FInputActionValue& Value);
  
 	// Handle look input
 	void Look(const FInputActionValue& Value);
+	
+	// Handle Projectile input
+	void PrimaryAttack(const FInputActionValue& Value);
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ASMagicProjectile> ProjectileClass;
 	
 public:	
 	// Called every frame

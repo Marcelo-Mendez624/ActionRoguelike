@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "SMagicProjectile.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -61,7 +62,10 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	UEnhancedInputComponent* IC = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 
 	IC->BindAction(InputMove, ETriggerEvent::Triggered, this, &ASCharacter::Move);
+	
 	IC->BindAction(InputLook, ETriggerEvent::Triggered, this, &ASCharacter::Look);
+	
+	IC->BindAction(InputAttack, ETriggerEvent::Started, this, &ASCharacter::PrimaryAttack);
 	
 }
 
@@ -106,4 +110,19 @@ void ASCharacter::Look(const FInputActionValue& Value)
 			AddControllerPitchInput(LookValue.Y);
 		
 	}
+}
+
+void ASCharacter::PrimaryAttack(const FInputActionValue& Value)
+{
+
+	const FVector HandLocation = GetMesh()->GetSocketLocation(TEXT("Muzzle_01"));
+	
+	const FTransform SpawnTM = FTransform(GetActorRotation(),HandLocation);
+
+	FActorSpawnParameters SpawnParameters;
+
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	if(ProjectileClass)
+		GetWorld()->SpawnActor<ASMagicProjectile>(ProjectileClass, SpawnTM, SpawnParameters);
 }
