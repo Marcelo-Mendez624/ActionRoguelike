@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "SInteractionComponent.h"
 #include "SMagicProjectile.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -29,6 +30,8 @@ ASCharacter::ASCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(ArmComponent);
 
+	InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComp"));
+
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +50,7 @@ void ASCharacter::BeginPlay()
 }
 
 
+
 // Called every frame
 void ASCharacter::Tick(float DeltaTime)
 {
@@ -63,9 +67,13 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	IC->BindAction(InputMove, ETriggerEvent::Triggered, this, &ASCharacter::Move);
 	
+	IC->BindAction(InputJump, ETriggerEvent::Triggered, this, &ACharacter::Jump);
+	
 	IC->BindAction(InputLook, ETriggerEvent::Triggered, this, &ASCharacter::Look);
 	
 	IC->BindAction(InputAttack, ETriggerEvent::Started, this, &ASCharacter::PrimaryAttack);
+	
+	IC->BindAction(InputInteraction, ETriggerEvent::Started, this, &ASCharacter::Interact);
 	
 }
 
@@ -115,6 +123,14 @@ void ASCharacter::Look(const FInputActionValue& Value)
 void ASCharacter::PrimaryAttack(const FInputActionValue& Value)
 {
 
+	if(AttackAnim)
+		PlayAnimMontage(AttackAnim);
+	
+	GetWorldTimerManager().SetTimer(HandleAttack, this, &ASCharacter::PrimaryAttack_TimerElapsed, .2f);
+}
+
+void ASCharacter::PrimaryAttack_TimerElapsed()
+{
 	const FVector HandLocation = GetMesh()->GetSocketLocation(TEXT("Muzzle_01"));
 	
 	const FTransform SpawnTM = FTransform(GetActorRotation(),HandLocation);
@@ -125,4 +141,9 @@ void ASCharacter::PrimaryAttack(const FInputActionValue& Value)
 	
 	if(ProjectileClass)
 		GetWorld()->SpawnActor<ASMagicProjectile>(ProjectileClass, SpawnTM, SpawnParameters);
+}
+
+void ASCharacter::Interact(const FInputActionValue& Value)
+{
+	InteractionComp->PrimaryInteract();
 }

@@ -10,6 +10,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class UInputAction;
+class UAnimMontage;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -30,6 +31,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	USpringArmComponent* ArmComponent;
 
+	UPROPERTY()
+	class USInteractionComponent* InteractionComp;
+
 	// Input
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
 	class UInputMappingContext* InputMapping;
@@ -39,8 +43,16 @@ protected:
  
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* InputLook;
+		
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UInputAction* InputJump;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* InputAttack;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UInputAction* InputInteraction;
+
 
 	// Handle move input
 	void Move(const FInputActionValue& Value);
@@ -51,8 +63,18 @@ protected:
 	// Handle Projectile input
 	void PrimaryAttack(const FInputActionValue& Value);
 
-	UPROPERTY(EditAnywhere)
+	// Handle Interaction input
+	void Interact(const FInputActionValue& Value);
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<class ASMagicProjectile> ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Attack")
+	UAnimMontage* AttackAnim;
+
+	FTimerHandle HandleAttack;
+
+	void PrimaryAttack_TimerElapsed();
 	
 public:	
 	// Called every frame
