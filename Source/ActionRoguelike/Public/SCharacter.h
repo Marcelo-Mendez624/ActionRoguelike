@@ -90,6 +90,9 @@ protected:
 	void BlackHole_TimerElapsed();
 
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 	
 public:	
 	// Called every frame

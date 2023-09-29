@@ -13,15 +13,7 @@ ASMagicProjectile::ASMagicProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	SphereComponent->SetCollisionProfileName("Projectile");
-	RootComponent = SphereComponent;
-
-	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("Effect Component");
-	EffectComp->SetupAttachment(SphereComponent);
 	
-
 }
 
 // Called when the game starts or when spawned
@@ -47,7 +39,7 @@ void ASMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedCompon
 
 	USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 
-	if(!AttributeComponent) return;
+	if(!AttributeComponent) return;													
 	
 
 	AttributeComponent->ApplyHealthChange(-20);
