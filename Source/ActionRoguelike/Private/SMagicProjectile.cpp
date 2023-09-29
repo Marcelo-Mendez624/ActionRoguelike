@@ -3,6 +3,7 @@
 
 #include "SMagicProjectile.h"
 
+#include "SAttributeComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -13,18 +14,13 @@ ASMagicProjectile::ASMagicProjectile()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
-	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	SphereComp->SetCollisionProfileName("Projectile");
-	RootComponent = SphereComp;
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	SphereComponent->SetCollisionProfileName("Projectile");
+	RootComponent = SphereComponent;
 
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>("Effect Component");
-	EffectComp->SetupAttachment(SphereComp);
-
-	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement Component"));
-	ProjectileMovementComp->InitialSpeed = 1000.f;
-	ProjectileMovementComp->bRotationFollowsVelocity = true;
-	ProjectileMovementComp->bInitialVelocityInLocalSpace = true;
-	ProjectileMovementComp->ProjectileGravityScale = 0;
+	EffectComp->SetupAttachment(SphereComponent);
+	
 
 }
 
@@ -32,6 +28,8 @@ ASMagicProjectile::ASMagicProjectile()
 void ASMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnComponentOverlap);
 	
 }
 
@@ -39,6 +37,21 @@ void ASMagicProjectile::BeginPlay()
 void ASMagicProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+}
+
+void ASMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(!OtherActor) return;
+
+	USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+
+	if(!AttributeComponent) return;
+	
+
+	AttributeComponent->ApplyHealthChange(-20);
+	Destroy();
 
 }
 

@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
 #include "SMagicProjectile.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -31,6 +32,8 @@ ASCharacter::ASCharacter()
 	CameraComponent->SetupAttachment(ArmComponent);
 
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComp"));
+	
+	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 
 }
 
@@ -72,6 +75,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	IC->BindAction(InputLook, ETriggerEvent::Triggered, this, &ASCharacter::Look);
 	
 	IC->BindAction(InputAttack, ETriggerEvent::Started, this, &ASCharacter::PrimaryAttack);
+	
+	IC->BindAction(InputBlackHole, ETriggerEvent::Started, this, &ASCharacter::BlackHoleAttack);
 	
 	IC->BindAction(InputInteraction, ETriggerEvent::Started, this, &ASCharacter::Interact);
 	
@@ -122,26 +127,69 @@ void ASCharacter::Look(const FInputActionValue& Value)
 
 void ASCharacter::PrimaryAttack(const FInputActionValue& Value)
 {
-
 	if(AttackAnim)
 		PlayAnimMontage(AttackAnim);
 	
 	GetWorldTimerManager().SetTimer(HandleAttack, this, &ASCharacter::PrimaryAttack_TimerElapsed, .2f);
 }
 
+void ASCharacter::BlackHoleAttack(const FInputActionValue& Value)
+{
+	if(AttackAnim)
+		PlayAnimMontage(AttackAnim);
+	
+	GetWorldTimerManager().SetTimer(HandleAttack, this, &ASCharacter::BlackHole_TimerElapsed, .2f);
+
+}
+
 void ASCharacter::PrimaryAttack_TimerElapsed()
 {
-	const FVector HandLocation = GetMesh()->GetSocketLocation(TEXT("Muzzle_01"));
-	
-	const FTransform SpawnTM = FTransform(GetActorRotation(),HandLocation);
-
-	FActorSpawnParameters SpawnParameters;
-
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParameters.Instigator = this;
-	
 	if(ProjectileClass)
-		GetWorld()->SpawnActor<ASMagicProjectile>(ProjectileClass, SpawnTM, SpawnParameters);
+		SpawnProjectile(ProjectileClass);
+}
+
+void ASCharacter::BlackHole_TimerElapsed()
+{
+	if(BlackHoleClass)
+		SpawnProjectile(BlackHoleClass);
+}
+
+void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
+	if(ensureAlways(ClassToSpawn))
+	{
+		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParameters.Instigator = this;
+
+		FCollisionShape Shape;
+		Shape.SetSphere(20.f);
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		FCollisionObjectQueryParams ObjParams;
+		ObjParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		ObjParams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjParams.AddObjectTypesToQuery(ECC_Pawn);
+
+		FVector TraceStart = CameraComponent->GetComponentLocation();
+		FVector TraceEnd = CameraComponent->GetComponentLocation() + (GetControlRotation().Vector() * 5000);
+
+		FHitResult Hit;
+
+		if(GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, FQuat::Identity, ObjParams, Shape, Params))
+		{
+			TraceEnd = Hit.ImpactPoint;
+		}
+
+		FRotator ProjRotator = FRotationMatrix::MakeFromX(TraceEnd - HandLocation).Rotator();
+
+		FTransform SpawnTM = FTransform(ProjRotator, HandLocation);
+		GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTM, SpawnParameters);
+	}
 }
 
 void ASCharacter::Interact(const FInputActionValue& Value)
