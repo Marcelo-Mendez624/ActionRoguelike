@@ -4,6 +4,7 @@
 #include "AI/SAICharacter.h"
 
 #include "AIController.h"
+#include "SAttributeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/PawnSensingComponent.h"
 
@@ -14,7 +15,7 @@ ASAICharacter::ASAICharacter()
 	PrimaryActorTick.bCanEverTick = false;
 
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSesingComp"));
-	
+	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 }
 
 void ASAICharacter::PostInitializeComponents()
