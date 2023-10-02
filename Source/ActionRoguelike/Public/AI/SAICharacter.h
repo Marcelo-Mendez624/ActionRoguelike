@@ -18,7 +18,6 @@ public:
 	ASAICharacter();
 
 protected:
-
 	virtual void PostInitializeComponents() override;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -29,6 +28,10 @@ protected:
 
 	UFUNCTION()
 	void OnPawnSeen(APawn* Pawn);
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
+	
 
 
 };
