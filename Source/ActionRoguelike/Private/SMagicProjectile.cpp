@@ -42,7 +42,7 @@ void ASMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedCompon
 	if(!AttributeComponent) return;													
 	
 
-	AttributeComponent->ApplyHealthChange(-20);
+	AttributeComponent->ApplyHealthChange(GetInstigator(),-20);
 	Destroy();
 
 }

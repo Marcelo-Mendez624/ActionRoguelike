@@ -18,6 +18,14 @@ public:
 	// Sets default values for this component's properties
 	USAttributeComponent();
 
+	UFUNCTION(Blueprintable, Category = "Attirbute")
+	static USAttributeComponent* GetAttributeComponent(AActor* FromActor);
+
+	
+	UFUNCTION(Blueprintable, Category = "Attirbute")
+	static bool IsActorAlive(AActor* Actor);
+	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
 	float HealthMax;
@@ -33,7 +41,7 @@ public:
 	bool IsFullHealth() const;
     
 	UFUNCTION(Blueprintable, Category = "Attributes")
-	bool ApplyHealthChange(float Delta);
+	bool ApplyHealthChange(AActor* InstigatorActor, float Delta);
 	
 
 	UPROPERTY(BlueprintAssignable)

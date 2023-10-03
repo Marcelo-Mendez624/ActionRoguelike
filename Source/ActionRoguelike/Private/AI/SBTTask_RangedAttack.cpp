@@ -4,6 +4,7 @@
 #include "AI/SBTTask_RangedAttack.h"
 
 #include "AIController.h"
+#include "SAttributeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
 
@@ -16,6 +17,8 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
 		ACharacter* MyPawn = Cast<ACharacter>(MyController->GetPawn());
 		if (MyPawn == nullptr) return EBTNodeResult::Failed;
 
+		
+
 
 		FVector MuzzleLocation = MyPawn->GetMesh()->GetSocketLocation("Muzzle_01");
 
@@ -23,12 +26,17 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
 
 		if(TargetActor == nullptr) return EBTNodeResult::Failed;
 
+		if(USAttributeComponent::IsActorAlive(TargetActor)) return EBTNodeResult::Failed;
 
 		FVector Direction = TargetActor->GetActorLocation() - MuzzleLocation;
 		FRotator MuzzleRotation = Direction.Rotation();
 
+		MuzzleRotation.Pitch += FMath::RandRange(0, 10);
+		MuzzleRotation.Yaw += FMath::RandRange(-10, 10);
+
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		Params.Instigator = MyPawn;
 
 		AActor* NewProject = GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, MuzzleRotation, Params);
 
