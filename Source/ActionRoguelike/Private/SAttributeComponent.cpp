@@ -3,6 +3,7 @@
 
 #include "SAttributeComponent.h"
 
+
 // Sets default values for this component's properties
 USAttributeComponent::USAttributeComponent()
 {
@@ -12,18 +13,19 @@ USAttributeComponent::USAttributeComponent()
 	// ...
 }
 
-USAttributeComponent* USAttributeComponent::GetAttributeComponent(AActor* FromActor)
+USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
 {
 	if(FromActor)
 	{
-		USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(FromActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		USAttributeComponent* Att = Cast<USAttributeComponent>(FromActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+		return Att;
 	}
 	return nullptr;
 }
 
 bool USAttributeComponent::IsActorAlive(AActor* Actor)
 {
-	USAttributeComponent* AttributeComponent = GetAttributeComponent(Actor);
+	USAttributeComponent* AttributeComponent = GetAttributes(Actor);
 	if(AttributeComponent)
 	{
 		return AttributeComponent->IsAlive();

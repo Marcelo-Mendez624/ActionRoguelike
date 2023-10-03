@@ -6,8 +6,11 @@
 #include "GameFramework/Character.h"
 #include "SAICharacter.generated.h"
 
+class USWorldUserWidget;
 class UPawnSensingComponent;
 class USAttributeComponent;
+class UUserWidget;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
 {
@@ -31,8 +34,13 @@ protected:
 
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
-	
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> HealthBarWidgetClass;
 
 	void SetTargetActor(AActor* NewTarget);
+
+	UPROPERTY(VisibleAnywhere)
+	USWorldUserWidget* ActiveHealthBar;
 
 };

@@ -5,6 +5,7 @@
 
 #include "EngineUtils.h"
 #include "SAttributeComponent.h"
+#include "SAttributeComponent.h"
 #include "AI/SAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
@@ -30,7 +31,7 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 	{
 		ASAICharacter* Bot = *It;
 
-		USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributeComponent(Bot);
+		USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(Bot);
 		
 		if(AttributeComponent && AttributeComponent->IsAlive())
 		{

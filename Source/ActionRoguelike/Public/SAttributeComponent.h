@@ -18,8 +18,8 @@ public:
 	// Sets default values for this component's properties
 	USAttributeComponent();
 
-	UFUNCTION(Blueprintable, Category = "Attirbute")
-	static USAttributeComponent* GetAttributeComponent(AActor* FromActor);
+	UFUNCTION(BlueprintCallable, Category = "Attirbute")
+	static USAttributeComponent* GetAttributes(AActor* FromActor);
 
 	
 	UFUNCTION(Blueprintable, Category = "Attirbute")
