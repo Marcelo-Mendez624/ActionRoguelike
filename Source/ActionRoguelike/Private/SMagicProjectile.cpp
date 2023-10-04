@@ -4,15 +4,17 @@
 #include "SMagicProjectile.h"
 
 #include "SAttributeComponent.h"
+#include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "Particles/ParticleSystemComponent.h"
+
 
 // Sets default values
 ASMagicProjectile::ASMagicProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+
+	DamageAmount = 20;
 	
 }
 
@@ -35,15 +37,20 @@ void ASMagicProjectile::Tick(float DeltaTime)
 void ASMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(!OtherActor) return;
+	// if(!OtherActor) return;
+	//
+	// USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
+	//
+	// if(!AttributeComponent || OtherActor == GetOwner()) return;													
+	//
+	//
+	// AttributeComponent->ApplyHealthChange(GetInstigator(),-20);
+	//
+	// Explode_Implementation();
 
-	USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-
-	if(!AttributeComponent) return;													
-	
-
-	AttributeComponent->ApplyHealthChange(GetInstigator(),-20);
-	Destroy();
-
+	if(USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
+	{
+		Explode();
+	}
 }
 

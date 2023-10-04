@@ -23,6 +23,8 @@ public:
 	
 	virtual void StartPlay() override;
 
+	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
+
 	
 protected:
 	FTimerHandle TimerHandle_SpawnBots;
@@ -46,6 +48,10 @@ protected:
 	UFUNCTION()
 	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 
-	
+	UFUNCTION()
+	void RespawnPlayerElapsed(AController* Controller);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Respawn")
+	float RespawnDelay;
 
 };

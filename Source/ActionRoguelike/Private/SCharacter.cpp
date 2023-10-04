@@ -208,6 +208,11 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	}
 }
 
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	return CameraComponent->GetComponentLocation();
+}
+
 void ASCharacter::Interact(const FInputActionValue& Value)
 {
 	InteractionComp->PrimaryInteract();

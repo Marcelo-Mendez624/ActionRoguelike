@@ -21,6 +21,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attirbute")
 	static USAttributeComponent* GetAttributes(AActor* FromActor);
 
+	UFUNCTION(BlueprintCallable)
+	bool Kill(AActor* Instigator);
 	
 	UFUNCTION(Blueprintable, Category = "Attirbute")
 	static bool IsActorAlive(AActor* Actor);
