@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SInteractionComponent.h"
 #include "SMagicProjectile.h"
@@ -34,6 +35,8 @@ ASCharacter::ASCharacter()
 	InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComp"));
 	
 	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
+	
+	ActionComponent = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComponent"));
 
 }
 
@@ -79,6 +82,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	IC->BindAction(InputJump, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 	
 	IC->BindAction(InputLook, ETriggerEvent::Triggered, this, &ASCharacter::Look);
+	
+	IC->BindAction(InputSprint, ETriggerEvent::Started, this, &ASCharacter::SprintStart);
+	IC->BindAction(InputSprint, ETriggerEvent::Completed, this, &ASCharacter::SprintStop);
 	
 	IC->BindAction(InputAttack, ETriggerEvent::Started, this, &ASCharacter::PrimaryAttack);
 	
@@ -133,32 +139,24 @@ void ASCharacter::Look(const FInputActionValue& Value)
 
 void ASCharacter::PrimaryAttack(const FInputActionValue& Value)
 {
-	if(AttackAnim)
-		PlayAnimMontage(AttackAnim);
-	
-	GetWorldTimerManager().SetTimer(HandleAttack, this, &ASCharacter::PrimaryAttack_TimerElapsed, .2f);
+	ActionComponent->StartActionByName(this, "PrimaryAttack");
 }
 
 void ASCharacter::BlackHoleAttack(const FInputActionValue& Value)
 {
-	if(AttackAnim)
-		PlayAnimMontage(AttackAnim);
-	
-	GetWorldTimerManager().SetTimer(HandleAttack, this, &ASCharacter::BlackHole_TimerElapsed, .2f);
-
+	ActionComponent->StartActionByName(this, "BlackHole");
 }
 
-void ASCharacter::PrimaryAttack_TimerElapsed()
+void ASCharacter::SprintStart(const FInputActionValue& Value)
 {
-	if(ProjectileClass)
-		SpawnProjectile(ProjectileClass);
+	ActionComponent->StartActionByName(this, "Sprint");
 }
 
-void ASCharacter::BlackHole_TimerElapsed()
+void ASCharacter::SprintStop(const FInputActionValue& Value)
 {
-	if(BlackHoleClass)
-		SpawnProjectile(BlackHoleClass);
+	ActionComponent->StopActionByName(this, "Sprint");
 }
+
 
 void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 {

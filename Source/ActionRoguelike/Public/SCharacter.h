@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UInputAction;
 class UAnimMontage;
 class USAttributeComponent;
+class USActionComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -34,6 +35,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USAttributeComponent* AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USActionComponent* ActionComponent;
 
 	UPROPERTY()
 	class USInteractionComponent* InteractionComp;
@@ -58,6 +62,9 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UInputAction* InputInteraction;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UInputAction* InputSprint;
 
 
 	// Handle move input
@@ -71,23 +78,16 @@ protected:
 	
 	// Handle Projectile input
 	void BlackHoleAttack(const FInputActionValue& Value);
+	
+	// Handle SprintStart input
+	void SprintStart(const FInputActionValue& Value);
+	
+	// Handle SprintStop input
+	void SprintStop(const FInputActionValue& Value);
 
 	// Handle Interaction input
 	void Interact(const FInputActionValue& Value);
-
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<class ASMagicProjectile> ProjectileClass;
 	
-	UPROPERTY(EditAnywhere, Category = "Attack")
-	TSubclassOf<class ASMagicProjectile> BlackHoleClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Attack")
-	UAnimMontage* AttackAnim;
-
-	FTimerHandle HandleAttack;
-
-	void PrimaryAttack_TimerElapsed();
-	void BlackHole_TimerElapsed();
 
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 

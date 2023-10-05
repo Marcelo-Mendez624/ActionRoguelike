@@ -55,7 +55,7 @@ bool USAttributeComponent::IsFullHealth() const
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delta)
 {
-	if(!GetOwner()->CanBeDamaged()) return false;
+	if(!GetOwner()->CanBeDamaged() || GetOwner() == InstigatorActor) return false;
 
 	
 	const float OldHealth = Health;
