@@ -17,25 +17,23 @@ public:
 	ASBasePowerUp();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* MeshComponent;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	class USphereComponent* SphereComponent;
 
-	void Inactivate();
-	void Activate();
-
 	UPROPERTY(EditDefaultsOnly)
 	float TimeToReactivate;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	void SetPowerUpState(bool bIsActive);
 
+	void ActivePowerUp();
+	void HidePowerUp();
+
+	FTimerHandle RespawnTimerHandle;
+
+public:	
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 
 };

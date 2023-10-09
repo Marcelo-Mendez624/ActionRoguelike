@@ -12,49 +12,42 @@ ASBasePowerUp::ASBasePowerUp()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	
+	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
+	SphereComponent->SetCollisionProfileName("PowerUp");
+	RootComponent = SphereComponent;
+	
+	
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-	RootComponent = MeshComponent;
-	MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	MeshComponent->SetupAttachment(SphereComponent);
 
 	TimeToReactivate = 10.f;
 	
 }
 
-// Called when the game starts or when spawned
-void ASBasePowerUp::BeginPlay()
+
+void ASBasePowerUp::SetPowerUpState(bool bIsActive)
 {
-	Super::BeginPlay();
-	
-	
+	SetActorEnableCollision(bIsActive);
+
+	RootComponent->SetVisibility(bIsActive, true);
 }
 
-void ASBasePowerUp::Inactivate()
+void ASBasePowerUp::ActivePowerUp()
 {
-	MeshComponent->SetVisibility(false);
-	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetPowerUpState(true);
 }
 
-void ASBasePowerUp::Activate()
+void ASBasePowerUp::HidePowerUp()
 {
-	MeshComponent->SetVisibility(true);
-	MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-}
+	SetPowerUpState(false);
 
-// Called every frame
-void ASBasePowerUp::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &ASBasePowerUp::ActivePowerUp, TimeToReactivate);
 }
 
 void ASBasePowerUp::Interact_Implementation(APawn* InstigatorPawn)
 {
 	ISGameplayInterface::Interact_Implementation(InstigatorPawn);
-
-	Inactivate();
-
-	FTimerHandle HandleActivation;
-	GetWorldTimerManager().SetTimer(HandleActivation, this, &ASBasePowerUp::Activate, TimeToReactivate);
 	
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("Interact"));
 }
 
