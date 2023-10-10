@@ -46,6 +46,8 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 	{
 		if(Action && Action->ActionName == ActionName)
 		{
+			if(!Action->CanStart(Instigator)) continue;
+			
 			Action->StartAction(Instigator);
 			return true;
 		}
@@ -59,6 +61,8 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	{
 		if(Action && Action->ActionName == ActionName)
 		{
+			if( !Action->IsRunning() ) return false;
+				
 			Action->StopAction(Instigator);
 			return true;
 		}

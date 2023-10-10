@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "SActionComponent.generated.h"
 
@@ -17,13 +18,16 @@ public:
 	// Sets default values for this component's properties
 	USActionComponent();
 
+
+	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-
-
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tags")
+	FGameplayTagContainer ActiveGameplayTags;
+	
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	void AddAction(TSubclassOf<USAction> ActionClass);
 	

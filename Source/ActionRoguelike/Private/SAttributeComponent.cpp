@@ -17,7 +17,7 @@ USAttributeComponent::USAttributeComponent()
 
 USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
 {
-	if(FromActor)
+	if(ensure(FromActor))
 	{
 		USAttributeComponent* Att = Cast<USAttributeComponent>(FromActor->GetComponentByClass(USAttributeComponent::StaticClass()));
 		return Att;
@@ -34,11 +34,8 @@ bool USAttributeComponent::Kill(AActor* Instigator)
 bool USAttributeComponent::IsActorAlive(AActor* Actor)
 {
 	USAttributeComponent* AttributeComponent = GetAttributes(Actor);
-	if(AttributeComponent)
-	{
-		return AttributeComponent->IsAlive();
-	}
-
+	if(ensure(AttributeComponent)) return AttributeComponent->IsAlive();
+	
 	return false;
 }
 
