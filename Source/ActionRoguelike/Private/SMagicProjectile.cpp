@@ -3,9 +3,11 @@
 
 #include "SMagicProjectile.h"
 
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 
 // Sets default values
@@ -15,6 +17,7 @@ ASMagicProjectile::ASMagicProjectile()
 	PrimaryActorTick.bCanEverTick = false;
 
 	DamageAmount = 20;
+	bReflected = false;
 	
 }
 
@@ -37,16 +40,15 @@ void ASMagicProjectile::Tick(float DeltaTime)
 void ASMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// if(!OtherActor) return;
-	//
-	// USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass()));
-	//
-	// if(!AttributeComponent || OtherActor == GetOwner()) return;													
-	//
-	//
-	// AttributeComponent->ApplyHealthChange(GetInstigator(),-20);
-	//
-	// Explode_Implementation();
+	USActionComponent* ActionComponent = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
+
+	if(ActionComponent && !bReflected && ActionComponent->ActiveGameplayTags.HasTag(ParryTag))
+	{
+		bReflected = true;
+		MovementComponent->Velocity = -MovementComponent->Velocity;
+		SetInstigator(Cast<APawn>(OtherActor));
+		return;
+	}
 
 	if(USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 	{

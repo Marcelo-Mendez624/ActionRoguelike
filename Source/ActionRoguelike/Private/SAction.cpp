@@ -13,6 +13,8 @@ USAction::USAction()
 
 bool USAction::CanStart_Implementation(AActor* Instigator)
 {
+	if(IsRunning()) return false;
+	
 	USActionComponent* Comp = GetOwningComponent();
 
 	if(Comp->ActiveGameplayTags.HasAny(BlockTags)) return false;
