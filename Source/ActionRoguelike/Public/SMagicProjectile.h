@@ -8,6 +8,8 @@
 #include "GameFramework/Actor.h"
 #include "SMagicProjectile.generated.h"
 
+class USActionEffect;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASMagicProjectile : public ASProjectileBase
 {
@@ -28,6 +30,9 @@ protected:
 	FGameplayTag ParryTag;
 
 	bool bReflected;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	TSubclassOf<USActionEffect> ActionEffect;
 	
 public:	
 	// Called every frame

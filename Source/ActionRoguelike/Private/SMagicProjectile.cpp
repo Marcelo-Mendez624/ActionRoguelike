@@ -8,6 +8,7 @@
 #include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "SActionEffect.h"
 
 
 // Sets default values
@@ -53,6 +54,10 @@ void ASMagicProjectile::OnComponentOverlap(UPrimitiveComponent* OverlappedCompon
 	if(USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, DamageAmount, SweepResult))
 	{
 		Explode();
+		if(ActionComponent)
+		{
+			ActionComponent->AddAction(GetInstigator(), ActionEffect);
+		}
 	}
 }
 

@@ -23,21 +23,31 @@ void USActionComponent::BeginPlay()
 
 	for(TSubclassOf<USAction> ActionsClass : DefaultActions)
 	{
-		AddAction(ActionsClass);
+		AddAction(GetOwner(), ActionsClass);
 	}
 	
 }
 
-void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass)
+void USActionComponent::AddAction(AActor* Instigator, TSubclassOf<USAction> ActionClass)
 {
 	if(!ActionClass) return;
 	
 	USAction* NewAction = NewObject<USAction>(this, ActionClass);
 
-	if(NewAction)
-	{
-		Actions.Add(NewAction);
-	}
+	if(!NewAction) return;
+	
+	Actions.Add(NewAction);
+
+	if(NewAction->bAutoStart && NewAction->CanStart(Instigator))
+		NewAction->StartAction(Instigator);
+	
+}
+
+void USActionComponent::RemoveAction(USAction* ActionToRemove)
+{
+	if (ActionToRemove && !ActionToRemove->IsRunning())
+		Actions.Remove(ActionToRemove);
+	
 }
 
 bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
