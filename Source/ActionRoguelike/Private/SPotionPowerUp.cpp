@@ -4,10 +4,12 @@
 #include "SPotionPowerUp.h"
 
 #include "SAttributeComponent.h"
+#include "SPlayerState.h"
 
 ASPotionPowerUp::ASPotionPowerUp()
 {
-	Power = 10;
+	Power = 40;
+	CreditCost = 10;
 }
 
 void ASPotionPowerUp::Interact_Implementation(APawn* InstigatorPawn)
@@ -20,16 +22,11 @@ void ASPotionPowerUp::Interact_Implementation(APawn* InstigatorPawn)
 
 	if(AttributeComponent && !AttributeComponent->IsFullHealth())
 	{
-		if(AttributeComponent->ApplyHealthChange(InstigatorPawn, Power))
-			HidePowerUp();
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Faild Cure"));
-		}
+		if(ASPlayerState* PS = InstigatorPawn->GetPlayerState<ASPlayerState>())
+			if(PS->RemoveCredits(CreditCost) && AttributeComponent->ApplyHealthChange(InstigatorPawn, Power))
+				HidePowerUp();
+
 	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Faild Attribute"));
-	}
+
 		
 }

@@ -7,6 +7,7 @@
 #include "SAttributeComponent.h"
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
+#include "SPlayerState.h"
 #include "AI/SAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
@@ -15,13 +16,14 @@ ASGameModeBase::ASGameModeBase()
 {
 	SpawnTimerInterval = 2.f;
 	RespawnDelay = 2.f;
+	CreditsPerKill = 50;
+	PlayerStateClass = ASPlayerState::StaticClass();
 }
 
 
 void ASGameModeBase::StartPlay()
 {
 	Super::StartPlay();
-
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
 }
 
@@ -35,6 +37,14 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 		Delegate.BindUFunction(this, "RespawnPlayerElapsed", Player->GetController());
 		
 		GetWorldTimerManager().SetTimer(TimerHandle_RespawnDelay, Delegate, RespawnDelay, false);
+	}
+
+	APawn* KillerPawn = Cast<APawn>(Killer);
+	if(Killer)
+	{
+		ASPlayerState* PS = KillerPawn->GetPlayerState<ASPlayerState>();
+		if(PS)
+			PS->AddCredits(CreditsPerKill);
 	}
 }
 

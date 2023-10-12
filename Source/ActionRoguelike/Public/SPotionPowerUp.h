@@ -24,4 +24,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Interact")
 	float Power;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Interact")
+	float CreditCost;
 };
