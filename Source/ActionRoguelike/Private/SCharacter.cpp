@@ -45,16 +45,6 @@ void ASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// Get the player controller
-	APlayerController* PC = Cast<APlayerController>(GetController());
-
-	// Get the local player subsystem
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
-	// Clear out existing mapping, and add our mapping
-	Subsystem->ClearAllMappings();
-	Subsystem->AddMappingContext(InputMapping, 0);
-
-	
 	AttributeComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 	
 }
@@ -74,6 +64,16 @@ void ASCharacter::Tick(float DeltaTime)
 void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	const APlayerController* PC = GetController<APlayerController>();
+	const ULocalPlayer* LP = PC->GetLocalPlayer();
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if(Subsystem)
+	{
+		Subsystem->ClearAllMappings();
+		Subsystem->AddMappingContext(InputMapping, 0);
+	}
 	
 	UEnhancedInputComponent* IC = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 

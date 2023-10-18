@@ -19,9 +19,6 @@ public:
 	void Interact_Implementation(APawn* InstigatorPawn) override;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* BaseMesh;
 	
@@ -31,8 +28,14 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float TargetPitch;
 
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly)
+	bool bLidOpen;
+
+	UFUNCTION()
+	void OnRep_LidOpened();
+
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 };
+

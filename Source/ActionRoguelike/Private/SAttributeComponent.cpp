@@ -11,6 +11,8 @@ USAttributeComponent::USAttributeComponent()
 {
 	HealthMax = 100;
 	Health = HealthMax;
+	RageMax = 100;
+	Rage = 0;
 
 	// ...
 }
@@ -64,6 +66,7 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	float ActualDelta = Health - OldHealth;
 
 	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+	
 
 	if(ActualDelta < 0.0f && Health == 0.f)
 	{
