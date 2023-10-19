@@ -18,12 +18,17 @@ public:
 	// Sets default values for this component's properties
 	USActionComponent();
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 public:
+
+	UFUNCTION(Server, Reliable)
+	void ServerStartAction(AActor* Instigator, FName ActionName);
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tags")
 	FGameplayTagContainer ActiveGameplayTags;
 	

@@ -4,6 +4,7 @@
 #include "SAttributeComponent.h"
 
 #include "SGameModeBase.h"
+#include "Net/UnrealNetwork.h"
 
 
 // Sets default values for this component's properties
@@ -13,6 +14,8 @@ USAttributeComponent::USAttributeComponent()
 	Health = HealthMax;
 	RageMax = 100;
 	Rage = 0;
+
+	SetIsReplicatedByDefault(true);
 
 	// ...
 }
@@ -42,6 +45,8 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 }
 
 
+
+
 bool USAttributeComponent::IsAlive() const
 {
 	return Health > 0.f;
@@ -65,9 +70,8 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 
 	float ActualDelta = Health - OldHealth;
 
-	OnHealthChanged.Broadcast(InstigatorActor, this, Health, ActualDelta);
+	MulticastHealthChanged(InstigatorActor, Health, Delta);
 	
-
 	if(ActualDelta < 0.0f && Health == 0.f)
 	{
 		ASGameModeBase* GM = Cast<ASGameModeBase>(GetWorld()->GetAuthGameMode<ASGameModeBase>());
@@ -80,3 +84,15 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	return ActualDelta != 0;
 }
 
+void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USAttributeComponent, Health);
+	DOREPLIFETIME_CONDITION(USAttributeComponent, HealthMax, COND_InitialOnly);
+}
+
+void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
+{
+	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
+}

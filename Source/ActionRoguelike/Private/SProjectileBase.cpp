@@ -28,6 +28,7 @@ ASProjectileBase::ASProjectileBase()
 	MovementComponent->ProjectileGravityScale = 0.f;
 	MovementComponent->InitialSpeed = 8000;
 
+	// SetReplicates(true);
 }
 
 // Called when the game starts or when spawned

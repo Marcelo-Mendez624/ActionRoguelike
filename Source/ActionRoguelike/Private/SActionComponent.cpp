@@ -4,6 +4,7 @@
 #include "SActionComponent.h"
 
 #include "SAction.h"
+#include "ActionRoguelike/ActionRoguelike.h"
 
 // Sets default values for this component's properties
 USActionComponent::USActionComponent()
@@ -12,7 +13,27 @@ USActionComponent::USActionComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
+	SetIsReplicatedByDefault(true);
+}
+
+void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	for(USAction* Action: Actions)
+	{
+		FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
+
+		FString ActionMsg = FString::Printf(TEXT("[%s] Action %s : IsRunning: %s : Outer: %s"),
+			*GetNameSafe(GetOwner()),
+			*Action->ActionName.ToString(),
+			Action->IsRunning() ? TEXT("True") : TEXT("False"),
+			*GetNameSafe(GetOuter()));
+
+		LogOnScreen(this, ActionMsg, TextColor, 0.0);
+	}
+	
 }
 
 
@@ -26,6 +47,11 @@ void USActionComponent::BeginPlay()
 		AddAction(GetOwner(), ActionsClass);
 	}
 	
+}
+
+void USActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StartActionByName(Instigator, ActionName);
 }
 
 void USActionComponent::AddAction(AActor* Instigator, TSubclassOf<USAction> ActionClass)
@@ -57,6 +83,9 @@ bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 		if(Action && Action->ActionName == ActionName)
 		{
 			if(!Action->CanStart(Instigator)) continue;
+
+			if(!GetOwner()->HasAuthority()) // Is client?
+				ServerStartAction(Instigator, ActionName);
 			
 			Action->StartAction(Instigator);
 			return true;

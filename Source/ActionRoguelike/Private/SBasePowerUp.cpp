@@ -21,7 +21,8 @@ ASBasePowerUp::ASBasePowerUp()
 	MeshComponent->SetupAttachment(SphereComponent);
 
 	TimeToReactivate = 10.f;
-	
+
+	SetReplicates(true);
 }
 
 
