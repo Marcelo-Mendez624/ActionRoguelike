@@ -24,7 +24,7 @@ ASGameModeBase::ASGameModeBase()
 void ASGameModeBase::StartPlay()
 {
 	Super::StartPlay();
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+	
 }
 
 void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
@@ -46,6 +46,16 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 		if(PS)
 			PS->AddCredits(CreditsPerKill);
 	}
+}
+
+void ASGameModeBase::CallBots()
+{
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+}
+
+void ASGameModeBase::StopBots()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnBots);
 }
 
 void ASGameModeBase::SpawnBotTimerElapsed()

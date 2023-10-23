@@ -5,13 +5,15 @@
 
 #include "SAction.h"
 #include "ActionRoguelike/ActionRoguelike.h"
+#include "Engine/ActorChannel.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 USActionComponent::USActionComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	SetIsReplicatedByDefault(true);
 }
@@ -29,7 +31,7 @@ void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			*GetNameSafe(GetOwner()),
 			*Action->ActionName.ToString(),
 			Action->IsRunning() ? TEXT("True") : TEXT("False"),
-			*GetNameSafe(GetOuter()));
+			*GetNameSafe(Action->GetOuter()));
 
 		LogOnScreen(this, ActionMsg, TextColor, 0.0);
 	}
@@ -42,21 +44,24 @@ void USActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	for(TSubclassOf<USAction> ActionsClass : DefaultActions)
+	// Server Only
+	if(GetOwner()->HasAuthority())
 	{
-		AddAction(GetOwner(), ActionsClass);
+		for(TSubclassOf<USAction> ActionsClass : DefaultActions)
+		{
+			AddAction(GetOwner(), ActionsClass);
+		}
 	}
-	
 }
-
-void USActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
-{
-	StartActionByName(Instigator, ActionName);
-}
-
 void USActionComponent::AddAction(AActor* Instigator, TSubclassOf<USAction> ActionClass)
 {
 	if(!ActionClass) return;
+
+	if(!GetOwner()->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client Attempting to add action. [Class: %s]"), *GetNameSafe(ActionClass));
+		return;
+	}
 	
 	USAction* NewAction = NewObject<USAction>(this, ActionClass);
 
@@ -75,6 +80,16 @@ void USActionComponent::RemoveAction(USAction* ActionToRemove)
 		Actions.Remove(ActionToRemove);
 	
 }
+void USActionComponent::ServerStopAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StopActionByName(Instigator, ActionName);
+}
+
+void USActionComponent::ServerStartAction_Implementation(AActor* Instigator, FName ActionName)
+{
+	StartActionByName(Instigator, ActionName);
+}
+
 
 bool USActionComponent::StartActionByName(AActor* Instigator, FName ActionName)
 {
@@ -101,7 +116,10 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 		if(Action && Action->ActionName == ActionName)
 		{
 			if( !Action->IsRunning() ) return false;
-				
+
+			if(!GetOwner()->HasAuthority())
+				ServerStopAction(Instigator, ActionName);
+			
 			Action->StopAction(Instigator);
 			return true;
 		}
@@ -109,3 +127,22 @@ bool USActionComponent::StopActionByName(AActor* Instigator, FName ActionName)
 	return false;
 }
 
+bool USActionComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	for (USAction* Action : Actions)
+	{
+		if(Action)
+			WroteSomething |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
+	}
+	
+	return WroteSomething;
+}
+
+void USActionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USActionComponent, Actions);
+}

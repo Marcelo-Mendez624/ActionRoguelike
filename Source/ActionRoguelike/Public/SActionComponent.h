@@ -20,14 +20,17 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	
 public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerStartAction(AActor* Instigator, FName ActionName);
+	UFUNCTION(Server, Reliable)
+	void ServerStopAction(AActor* Instigator, FName ActionName);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Tags")
 	FGameplayTagContainer ActiveGameplayTags;
@@ -43,9 +46,11 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	bool StopActionByName(AActor* Instigator, FName ActionName);
+
+	bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	
 protected:
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TArray<USAction*> Actions;
 
 	UPROPERTY(EditAnywhere, Category = "Actions")

@@ -27,6 +27,10 @@ public:
 
 	
 protected:
+	UFUNCTION(Exec)
+	void CallBots();
+	UFUNCTION(Exec)
+	void StopBots();
 	FTimerHandle TimerHandle_SpawnBots;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AI")

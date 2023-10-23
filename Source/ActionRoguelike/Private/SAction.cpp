@@ -4,10 +4,11 @@
 #include "SAction.h"
 
 #include "SActionComponent.h"
+#include "Net/UnrealNetwork.h"
 
 USAction::USAction()
 {
-	bIsRunning = false;
+	RepData.bIsRunning = false;
 }
 
 
@@ -25,36 +26,49 @@ bool USAction::CanStart_Implementation(AActor* Instigator)
 void USAction::StartAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("Running: %s"), *GetNameSafe(this));
-
-	bIsRunning = true;
 	
 	GetOwningComponent()->ActiveGameplayTags.AppendTags(GrantsTags);
+
+	RepData.bIsRunning = true;
+	RepData.Instigator = Instigator;	
 }
 
 void USAction::StopAction_Implementation(AActor* Instigator)
 {
 	UE_LOG(LogTemp, Log, TEXT("Stopped: %s"), *GetNameSafe(this));
-
-	ensureAlways(bIsRunning);
-	
-	bIsRunning = false;
 	
 	GetOwningComponent()->ActiveGameplayTags.RemoveTags(GrantsTags);
-}
 
-
-
-UWorld* USAction::GetWorld() const
-{
-	return UObject::GetWorld();
+	RepData.bIsRunning = false;
+	RepData.Instigator = Instigator;
 }
 
 bool USAction::IsRunning() const
 {
-	return bIsRunning;
+	return RepData.bIsRunning;
+}
+
+void USAction::OnRep_RepData()
+{
+	if(RepData.bIsRunning)
+	{
+		StartAction(RepData.Instigator);
+	}
+	else
+	{
+		StopAction(RepData.Instigator);
+	}
 }
 
 USActionComponent* USAction::GetOwningComponent() const
 {
 	return Cast<USActionComponent>(GetOuter());
+}
+
+
+void USAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USAction, RepData);
 }

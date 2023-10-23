@@ -64,23 +64,27 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, float Delt
 	if(Delta < 0 && InstigatorActor == GetOwner()) return false;
 	
 	const float OldHealth = Health;
-	Health += Delta;
+	const float NewHealth =FMath::Clamp(Health + Delta, 0.0f, HealthMax);
 
-	Health = FMath::Clamp(Health + Delta, 0.0f, HealthMax);
-
-	float ActualDelta = Health - OldHealth;
-
-	MulticastHealthChanged(InstigatorActor, Health, Delta);
+	const float ActualDelta = NewHealth - OldHealth;
 	
-	if(ActualDelta < 0.0f && Health == 0.f)
+	if(GetOwner()->HasAuthority())
 	{
-		ASGameModeBase* GM = Cast<ASGameModeBase>(GetWorld()->GetAuthGameMode<ASGameModeBase>());
-		if(GM)
+		Health = NewHealth;
+		
+		if(ActualDelta != 0.f)
+			MulticastHealthChanged(InstigatorActor, Health, Delta);
+		
+		if(ActualDelta < 0.0f && Health == 0.f)
 		{
-			GM->OnActorKilled(GetOwner(), InstigatorActor);
+			ASGameModeBase* GM = Cast<ASGameModeBase>(GetWorld()->GetAuthGameMode<ASGameModeBase>());
+			if(GM)
+			{
+				GM->OnActorKilled(GetOwner(), InstigatorActor);
+			}
 		}
 	}
-	
+
 	return ActualDelta != 0;
 }
 

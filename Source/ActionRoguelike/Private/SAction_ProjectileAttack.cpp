@@ -18,6 +18,7 @@ void USAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
 	Super::StartAction_Implementation(Instigator);
 
 	ACharacter* InstigatorCharacter = Cast<ACharacter>(Instigator);
+	
 	if(InstigatorCharacter)
 	{
 		if(AttackAnim)
@@ -25,11 +26,14 @@ void USAction_ProjectileAttack::StartAction_Implementation(AActor* Instigator)
 
 		UGameplayStatics::SpawnEmitterAttached(CastingEffect, InstigatorCharacter->GetMesh(), HandSocketName,FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget);
 
-		FTimerHandle TimerHandle_AttackDelay;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "AttackDelay_Elapsed", InstigatorCharacter);
+		if(InstigatorCharacter->HasAuthority())
+		{
+			FTimerHandle TimerHandle_AttackDelay;
+			FTimerDelegate Delegate;
+			Delegate.BindUFunction(this, "AttackDelay_Elapsed", InstigatorCharacter);
 
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle_AttackDelay, Delegate, AttackAnimDelay, false);
+		}
 	}
 	
 }
