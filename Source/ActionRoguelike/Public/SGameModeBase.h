@@ -11,6 +11,7 @@
  * 
  */
 
+class USSaveGame;
 class UEnvQueryInstanceBlueprintWrapper;
 
 UCLASS()
@@ -25,6 +26,15 @@ public:
 
 	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	void WriteSaveGame();
+
+	FString SlotName;
+	
+	void LoadSaveGame();
+
+
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	
 protected:
 	UFUNCTION(Exec)
@@ -60,6 +70,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Kill")
 	float CreditsPerKill;
 
+	UPROPERTY()
+	USSaveGame* CurrentSaveGame;
 	
 
 };

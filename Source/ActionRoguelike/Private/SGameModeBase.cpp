@@ -8,8 +8,10 @@
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
 #include "SPlayerState.h"
+#include "SSaveGame.h"
 #include "AI/SAICharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ASGameModeBase::ASGameModeBase()
@@ -18,6 +20,7 @@ ASGameModeBase::ASGameModeBase()
 	RespawnDelay = 2.f;
 	CreditsPerKill = 50;
 	PlayerStateClass = ASPlayerState::StaticClass();
+	SlotName = "SaveGame01";
 }
 
 
@@ -46,6 +49,38 @@ void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* Killer)
 		if(PS)
 			PS->AddCredits(CreditsPerKill);
 	}
+}
+
+void ASGameModeBase::WriteSaveGame()
+{
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGame, SlotName, 0);
+}
+
+void ASGameModeBase::LoadSaveGame()
+{
+	if(UGameplayStatics::DoesSaveGameExist(SlotName, 0))
+	{
+		CurrentSaveGame = Cast<USSaveGame>(UGameplayStatics::CreateSaveGameObject(USSaveGame::StaticClass()));
+		if(CurrentSaveGame == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Faild to load save game"));
+			return;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Load Game"));
+	}
+	else
+	{
+		CurrentSaveGame = Cast<USSaveGame>(UGameplayStatics::CreateSaveGameObject(USSaveGame::StaticClass()));
+		UE_LOG(LogTemp, Warning, TEXT("Created New SaveGame"));
+	}
+}
+
+void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	LoadSaveGame();
+	
 }
 
 void ASGameModeBase::CallBots()

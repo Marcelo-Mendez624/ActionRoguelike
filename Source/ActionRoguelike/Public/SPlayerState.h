@@ -16,6 +16,7 @@ class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Credits")
 	int32 GetCredits() const { return  Credits; };
 
 	UFUNCTION(BlueprintCallable, Category = "Credits")
@@ -28,6 +29,7 @@ public:
 	FOnCreditsChanged OnCreditsChanged;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Credits")
 	int32 Credits;
 	
 };
