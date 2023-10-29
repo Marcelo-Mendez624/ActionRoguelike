@@ -18,6 +18,8 @@ public:
 
 	void Interact_Implementation(APawn* InstigatorPawn) override;
 
+	virtual void OnActorLoaded_Implementation(AActor* InstigatorPawn) override;
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* BaseMesh;
@@ -28,11 +30,13 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float TargetPitch;
 
-	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly)
+	UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly, SaveGame)
 	bool bLidOpen;
 
 	UFUNCTION()
 	void OnRep_LidOpened();
+
+	
 
 public:	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

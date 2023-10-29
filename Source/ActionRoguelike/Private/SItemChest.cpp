@@ -24,6 +24,11 @@ void ASItemChest::Interact_Implementation(APawn* InstigatorPawn)
 	OnRep_LidOpened();
 }
 
+void ASItemChest::OnActorLoaded_Implementation(AActor* InstigatorPawn)
+{
+	OnRep_LidOpened();
+}
+
 void ASItemChest::OnRep_LidOpened()
 {
 	const float CurrentPitch = bLidOpen ? TargetPitch : 0.0f;

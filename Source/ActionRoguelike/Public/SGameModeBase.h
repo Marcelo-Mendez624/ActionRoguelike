@@ -24,6 +24,8 @@ public:
 	
 	virtual void StartPlay() override;
 
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
+
 	virtual void OnActorKilled(AActor* VictimActor, AActor* Killer);
 
 	UFUNCTION(BlueprintCallable, Category = "SaveGame")
