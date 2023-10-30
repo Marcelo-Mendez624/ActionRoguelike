@@ -27,7 +27,6 @@ public:
 	
 	UFUNCTION(Blueprintable, Category = "Attirbute")
 	static bool IsActorAlive(AActor* Actor);
-	
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
@@ -35,13 +34,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Attributes")
 	float Health;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated,Category = "Attributes")
 	float RageMax;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated,Category = "Attributes")
 	float Rage;
 
 	UFUNCTION(NetMulticast, Reliable) // @Fixme: mark as unreliable once we moved the 'state' out of SCharacter
 	void MulticastHealthChanged(AActor* InstigatorActor, float NewHealth, float Delta);
+	
+	UFUNCTION(NetMulticast, Unreliable) // @Fixme: mark as unreliable once we moved the 'state' out of SCharacter
+	void MulticastRageChanged(AActor* InstigatorActor, float NewRage, float Delta);
 
 public:	
 

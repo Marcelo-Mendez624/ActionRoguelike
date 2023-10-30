@@ -46,7 +46,6 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 
 
 
-
 bool USAttributeComponent::IsAlive() const
 {
 	return Health > 0.f;
@@ -99,4 +98,9 @@ void USAttributeComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float NewHealth, float Delta)
 {
 	OnHealthChanged.Broadcast(InstigatorActor, this, NewHealth, Delta);
+}
+
+void USAttributeComponent::MulticastRageChanged_Implementation(AActor* InstigatorActor, float NewRage, float Delta)
+{
+	OnRangeChanged.Broadcast(InstigatorActor, this, NewRage, Delta);
 }
