@@ -5,16 +5,16 @@
 #include "CoreMinimal.h"
 #include "SProjectileBase.h"
 #include "GameFramework/Actor.h"
-#include "SBlackholeProjectile.generated.h"
+#include "SBlackHoleProjectile.generated.h"
 
 UCLASS()
-class ACTIONROGUELIKE_API ASBlackholeProjectile : public ASProjectileBase
+class ACTIONROGUELIKE_API ASBlackHoleProjectile : public ASProjectileBase
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ASBlackholeProjectile();
+	ASBlackHoleProjectile();
 
 protected:
 	// Called when the game starts or when spawned

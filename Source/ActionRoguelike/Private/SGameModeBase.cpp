@@ -186,7 +186,7 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 		}
 	}
 
-	float MaxBotCount = 10;
+	float MaxBotCount = 5;
 
 	if(DifficultyCurve)
 		MaxBotCount = DifficultyCurve->GetFloatValue(GetWorld()->TimeSeconds);

@@ -1,23 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SBlackholeProjectile.h"
-
+#include "SBlackHoleProjectile.h"
 #include "Components/SphereComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 
 // Sets default values
-ASBlackholeProjectile::ASBlackholeProjectile()
+ASBlackHoleProjectile::ASBlackHoleProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
-	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphreComponent"));
-	RootComponent = SphereComponent;
-
+	
 	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForce"));
-	RadialForceComponent->SetupAttachment(SphereComponent);
+	RadialForceComponent->SetupAttachment(RootComponent);
 	RadialForceComponent->ForceStrength = -20000000.f;
 	RadialForceComponent->Radius = 1000.f;
 	
@@ -25,33 +20,35 @@ ASBlackholeProjectile::ASBlackholeProjectile()
 }
 
 // Called when the game starts or when spawned
-void ASBlackholeProjectile::BeginPlay()
+void ASBlackHoleProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASBlackholeProjectile::OnOverlapBegin);
+	SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASBlackHoleProjectile::OnOverlapBegin);
 
 	FTimerHandle Timer;
-	GetWorldTimerManager().SetTimer(Timer, this, &ASBlackholeProjectile::DestroyAfter, 5.f);
+	GetWorldTimerManager().SetTimer(Timer, this, &ASBlackHoleProjectile::DestroyAfter, 5.f);
 }
 
-void ASBlackholeProjectile::DestroyAfter()
+void ASBlackHoleProjectile::DestroyAfter()
 {
 	Destroy();
 }
 
 // Called every frame
-void ASBlackholeProjectile::Tick(float DeltaTime)
+void ASBlackHoleProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
 }
 
-void ASBlackholeProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+void ASBlackHoleProjectile::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if(OtherActor && OtherComp)
 		if(OtherComp->IsSimulatingPhysics())
+		{
 			OtherActor->Destroy();
+		}
 }
 

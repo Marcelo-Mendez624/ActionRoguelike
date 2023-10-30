@@ -6,7 +6,6 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
@@ -20,7 +19,7 @@ ASProjectileBase::ASProjectileBase()
 	RootComponent = SphereComponent;
 
 	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("EffectComp"));
-	EffectComp->SetupAttachment(RootComponent);
+	EffectComp->SetupAttachment(SphereComponent);
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMoveComp"));
 	MovementComponent->bRotationFollowsVelocity = true;
@@ -31,19 +30,6 @@ ASProjectileBase::ASProjectileBase()
 	// SetReplicates(true);
 }
 
-// Called when the game starts or when spawned
-void ASProjectileBase::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void ASProjectileBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 
 void ASProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
@@ -56,7 +42,6 @@ void ASProjectileBase::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	SphereComponent->OnComponentHit.AddDynamic(this, &ASProjectileBase::OnActorHit);
 	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
-	
 }
 
 void ASProjectileBase::Explode_Implementation()

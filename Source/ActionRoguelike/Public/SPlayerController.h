@@ -10,6 +10,8 @@
  * 
 */
 
+
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPawnChanged, APawn*, NewPawn);
 
 UCLASS()
@@ -20,6 +22,19 @@ class ACTIONROGUELIKE_API ASPlayerController : public APlayerController
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPawnChanged OnPawnChanged;
+	
 	virtual void SetPawn(APawn* InPawn) override;
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PauseMenuClass;
+
+	UPROPERTY()
+	UUserWidget* PauseMenuInstance;
+
+	UFUNCTION(BlueprintCallable)
+	void TogglePauseMenu();
+
+	void SetupInputComponent() override;
 	
 };
