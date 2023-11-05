@@ -5,6 +5,7 @@
 
 #include "BlueprintEditor.h"
 #include "SActionComponent.h"
+#include "GameFramework/GameStateBase.h"
 
 USActionEffect::USActionEffect()
 {
@@ -17,6 +18,8 @@ void USActionEffect::StartAction_Implementation(AActor* Instigator)
 {
 	Super::StartAction_Implementation(Instigator);
 
+
+	
 	if(Duration > 0)
 	{
 		FTimerDelegate Delegate;
@@ -46,6 +49,21 @@ void USActionEffect::StopAction_Implementation(AActor* Instigator)
 	GetWorld()->GetTimerManager().ClearTimer(DurationHandle);
 
 	GetOwningComponent()->RemoveAction(this);
+}
+
+float USActionEffect::GetTimeRemaining() const
+{
+
+	AGameStateBase* GS = GetWorld()->GetGameState<AGameStateBase>();
+
+	if(GS)
+	{
+		float EndTime = TimeStarted + Duration;
+
+		return EndTime - GS->GetServerWorldTimeSeconds();
+	}
+
+	return Duration;
 }
 
 void USActionEffect::ExecutePeriodicEffect_Implementation(AActor* Instigator)

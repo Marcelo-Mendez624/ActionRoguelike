@@ -27,9 +27,7 @@ void ASDashProjectile::Explode_Implementation()
 	GetWorldTimerManager().ClearTimer(TimerHandle_DelayDetonate);
 
 	UGameplayStatics::SpawnEmitterAtLocation(this, ImpactVFX, GetActorLocation(), GetActorRotation());
-
-	EffectComp->DeactivateSystem();
-
+	
 	MovementComponent->StopMovementImmediately();
 	SetActorEnableCollision(false);
 

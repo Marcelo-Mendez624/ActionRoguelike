@@ -6,20 +6,18 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Particles/ParticleSystemComponent.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 ASProjectileBase::ASProjectileBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	SphereComponent->SetCollisionProfileName("Projectile");
+	SphereComponent->SetCanEverAffectNavigation(false);
 	RootComponent = SphereComponent;
-
-	EffectComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("EffectComp"));
-	EffectComp->SetupAttachment(SphereComponent);
+	
+	ParticleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
+	ParticleSystemComponent->SetupAttachment(SphereComponent);
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMoveComp"));
 	MovementComponent->bRotationFollowsVelocity = true;
@@ -31,17 +29,19 @@ ASProjectileBase::ASProjectileBase()
 }
 
 
-void ASProjectileBase::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
-{
-	Explode();
-}
 
 void ASProjectileBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	SphereComponent->OnComponentHit.AddDynamic(this, &ASProjectileBase::OnActorHit);
+	
 	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
+	SphereComponent->OnComponentHit.AddDynamic(this, &ASProjectileBase::OnHit);
+}
+
+void ASProjectileBase::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
+{
+	Explode();
 }
 
 void ASProjectileBase::Explode_Implementation()

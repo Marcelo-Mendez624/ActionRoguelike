@@ -52,6 +52,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Actions")
 	bool IsRunning() const;
 
+
 protected:
 	UPROPERTY(ReplicatedUsing="OnRep_RepData")
 	FActionRepData RepData;
@@ -59,6 +60,12 @@ protected:
 	UFUNCTION()
 	void OnRep_RepData();
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	UTexture2D* Icon;
+	
+
+	UPROPERTY(Replicated)
+	float TimeStarted;
 	
 	UPROPERTY(EditDefaultsOnly, Category ="Tags")
 	FGameplayTagContainer GrantsTags;
