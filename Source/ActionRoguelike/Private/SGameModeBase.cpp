@@ -4,13 +4,16 @@
 #include "SGameModeBase.h"
 
 #include "EngineUtils.h"
+#include "SActionComponent.h"
 #include "SAttributeComponent.h"
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
 #include "SGameplayInterface.h"
+#include "SMonsterData.h"
 #include "SPlayerState.h"
 #include "SSaveGame.h"
 #include "AI/SAICharacter.h"
+#include "Engine/AssetManager.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -170,6 +173,30 @@ void ASGameModeBase::StopBots()
 	GetWorldTimerManager().ClearTimer(TimerHandle_SpawnBots);
 }
 
+void ASGameModeBase::OnMonsterLoaded(FPrimaryAssetId LoadedID, FVector SpawnLocation)
+{
+	UAssetManager* Manager = UAssetManager::GetIfValid();
+
+	if(Manager)
+	{
+		USMonsterData* MonsterData = Cast<USMonsterData>(Manager->GetPrimaryAssetObject(LoadedID)); 
+		
+		AActor* NewBot = GetWorld()->SpawnActor<ASAICharacter>(MonsterData->MonsterClass, SpawnLocation, FRotator::ZeroRotator);
+			
+		if(NewBot)
+		{
+			USActionComponent* ActionComp = Cast<USActionComponent>(NewBot->GetComponentByClass(USActionComponent::StaticClass()));
+			if(ActionComp)
+			{
+				for(TSubclassOf<USAction> ActionClass : MonsterData->Actions)
+				{
+					ActionComp->AddAction(NewBot, ActionClass);
+				}
+			}
+		}
+	}
+}
+
 void ASGameModeBase::SpawnBotTimerElapsed()
 {
 
@@ -202,8 +229,7 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 		QueryInstance->GetOnQueryFinishedEvent().AddDynamic(this, &ASGameModeBase::OnQueryCompleted);
 }
 
-void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance,
-	EEnvQueryStatus::Type QueryStatus)
+void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
 	if(QueryStatus != EEnvQueryStatus::Success)
 	{
@@ -216,7 +242,24 @@ void ASGameModeBase::OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryIn
 
 	if(Locations.IsValidIndex(0))
 	{
-		GetWorld()->SpawnActor<ASAICharacter>(MinionClass, Locations[0], FRotator::ZeroRotator);
+		if(MonsterTable)
+		{
+			TArray<FMonsterInfoRow*> Rows;
+			MonsterTable->GetAllRows("", Rows);
+
+			int32 RandomIndex = FMath::RandRange(0, Rows.Num() - 1);
+			FMonsterInfoRow* SelectedRow = Rows[RandomIndex];
+
+			UAssetManager* Manager = UAssetManager::GetIfValid();
+			if(Manager)
+			{
+				TArray<FName> Bundle;
+				FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this,
+					&ASGameModeBase::OnMonsterLoaded, SelectedRow->MonsterID,Locations[0]);
+				
+				Manager->LoadPrimaryAsset(SelectedRow->MonsterID, Bundle, Delegate);
+			}
+		}
 	}
 }
 

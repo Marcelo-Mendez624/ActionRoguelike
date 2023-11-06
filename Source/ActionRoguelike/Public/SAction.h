@@ -61,7 +61,7 @@ protected:
 	void OnRep_RepData();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
-	UTexture2D* Icon;
+	TSoftObjectPtr<UTexture2D> Icon;
 	
 
 	UPROPERTY(Replicated)

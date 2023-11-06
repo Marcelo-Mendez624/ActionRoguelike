@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "Engine/DataTable.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameModeBase.h"
 #include "SGameModeBase.generated.h"
@@ -11,8 +13,41 @@
  * 
  */
 
+class USMonsterData;
+class UDataTable;
 class USSaveGame;
 class UEnvQueryInstanceBlueprintWrapper;
+
+
+USTRUCT(BlueprintType)
+struct FMonsterInfoRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	FMonsterInfoRow()
+	{
+		Weight = 1;
+		SpawnCost = 5.f;
+		KillReward = 20.f;
+	}
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FPrimaryAssetId MonsterID;
+
+	// Relative chance to pick this monster
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Weight;
+	
+	// Points required by Game mode to spawn this unit
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SpawnCost;
+	
+	// Amount of credits awarded to killer of this unit
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float KillReward;
+	
+};
+
 
 UCLASS()
 class ACTIONROGUELIKE_API ASGameModeBase : public AGameModeBase
@@ -48,12 +83,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	float SpawnTimerInterval;
 
-	
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	TSubclassOf<AActor> MinionClass;
+	UDataTable* MonsterTable; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	class UCurveFloat* DifficultyCurve;
+
+	void OnMonsterLoaded(FPrimaryAssetId LoadedID, FVector SpawnLocation);
 	
 	UFUNCTION()
 	void SpawnBotTimerElapsed();
